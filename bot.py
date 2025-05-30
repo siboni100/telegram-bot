@@ -171,5 +171,5 @@ def webhook():
     bot.set_webhook(url='https://your-app-name.onrender.com/' + TOKEN)  # שנה ל-URL שלך
     return "Webhook set!", 200
 
-if name == 'main':
+if __name__ == '__main__' :
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
