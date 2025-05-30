@@ -33,12 +33,11 @@ def start(message):
 
 @bot.callback_query_handler(func=lambda call: call.data in ["pickup", "delivery"])
 def handle_method(call):
-    user_data[call.from_user.id] = {"method": call.data}
-    if call.data == "pickup":
-        show_products(call.message)
-    else:
-        bot.send_message(call.message.chat.id, "הכנס את שמך:")
-        bot.register_next_step_handler(call.message, get_name)
+    user_data[call.from_user.id] = {}
+    user_data[call.from_user.id]["delivery_method"] = "איסוף עצמי" if call.data == "pickup" else "משלוח"
+    
+    bot.send_message(call.message.chat.id, "הכנס את שמך:")
+    bot.register_next_step_handler(call.message, get_name)
 
 def get_name(message):
     user_data[message.from_user.id]["name"] = message.text
@@ -52,8 +51,8 @@ def get_address(message):
 
 def get_phone(message):
     user_data[message.from_user.id]["phone"] = message.text
-    show_products(message)
-
+    # פה תוכל להמשיך לשלב בחירת מוצר או טעם
+    bot.send_message(message.chat.id, "עכשיו בחר מוצר...")  # המשך תהליך
 def show_products(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("שקיות רפואי", callback_data="medica"))
@@ -113,6 +112,7 @@ def show_moroccan(call):
 def handle_vapes(call):
     user_data[call.from_user.id]["product"] = "וייפים בטעמים"
     markup = types.InlineKeyboardMarkup()
+    
     flavors = [
         ("Frozen grapes 🍇", "frozen"), ("Apple jam 🍏", "apple"),
         ("Papaya 🍑", "papaya"), ("Blu velvet 🫐", "velvet"),
@@ -161,8 +161,8 @@ def send_summary(message):
     selection_key = data.get("selection", "-")
     price = prices_map.get(selection_key, "-")
 
-    summary = f"""
-📦 התקבלה הזמנה:
+    summary = f"""📦 התקבלה הזמנה:
+
 שיטה: {context.user_data.get('delivery_method', 'לא צוין')}
 שם: {context.user_data.get('name', 'לא צוין')}
 כתובת: {context.user_data.get('address', 'לא צוין')}
@@ -170,7 +170,7 @@ def send_summary(message):
 מוצר: {context.user_data.get('product', 'לא צוין')}
 טעם: {context.user_data.get('flavor', 'לא צוין')}
 כמות: {context.user_data.get('amount', 'לא צוין')}
-סכום לתשלום: {context.user_data.get('price', 'לא צוין')} ₪
+סכום לתשלום: {context.user_data.get('price', 'לא צוין')}
 """
 
     bot.send_message(message.chat.id, "✅ הזמנתך התקבלה!\nתודה שבחרת במיידי פראם 🫶")
