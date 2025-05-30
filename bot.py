@@ -5,9 +5,8 @@ import os
 
 TOKEN = '7809342094:AAEivr0_RTMX6udxMPS8lVaNaEyepSv-rC4'
 ADMIN_CHAT_ID = 7759457391
-
 bot = telebot.TeleBot(TOKEN)
-app = Flask(__name__)
+app = Flask(name)  # ← תיקון כאן
 
 user_data = {}
 
@@ -24,6 +23,8 @@ prices_map = {
     "and_beautiful_zkittlez_1": 300, "and_beautiful_zkittlez_2": 550,
     "and_beautiful_wedding_1": 300, "and_beautiful_wedding_2": 550
 }
+
+# ========== BOT HANDLERS ==========
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -90,7 +91,8 @@ def show_prices(call):
     }
 
     markup = types.InlineKeyboardMarkup()
-    for label, cb in prices[product]:
+
+for label, cb in prices[product]:
         markup.add(types.InlineKeyboardButton(label, callback_data=cb))
     path = images.get(product)
     if path and os.path.exists(path):
@@ -104,15 +106,11 @@ def handle_vapes(call):
     user_data[call.from_user.id]["product"] = "וייפים בטעמים"
     markup = types.InlineKeyboardMarkup()
     flavors = [
-        ("Frozen grapes 🍇", "frozen"),
-        ("Apple jam 🍏", "apple"),
-        ("Papaya 🍑", "papaya"),
-        ("Blu velvet 🫐", "velvet"),
-        ("Blu frootz ❄️", "frootz"),
-        ("LA Zkittlez 🍬", "zkittlez"),
+        ("Frozen grapes 🍇", "frozen"), ("Apple jam 🍏", "apple"),
+        ("Papaya 🍑", "papaya"), ("Blu velvet 🫐", "velvet"),
+        ("Blu frootz ❄️", "frootz"), ("LA Zkittlez 🍬", "zkittlez"),
         ("Wedding CK", "wedding")
-    
-]
+    ]
     for name, code in flavors:
         markup.add(types.InlineKeyboardButton(name, callback_data=f"flavor_{code}"))
 
@@ -169,22 +167,22 @@ def send_summary(message):
     )
     bot.send_message(message.chat.id, "✅ הזמנתך התקבלה!\nתודה שבחרת במיידי פראם 🫶")
     bot.send_message(ADMIN_CHAT_ID, summary)
-    if method == "pickup":
-        pickup_summary = (
-            "🛍 הזמנת איסוף:\n"
-            f"שם: {name}\n"
-            f"טלפון: {phone}\n"
-            f"מוצר: {product}\n"
-            f"כמות: {quantity}"
-        )
-        bot.send_message(ADMIN_CHAT_ID, pickup_summary)
 
-    bot.send_message(message.chat.id, summary)
-    bot.send_message(ADMIN_CHAT_ID, summary)
+# ========== FLASK ENDPOINT ==========
 
-import os
+@app.route(f"/{TOKEN}", methods=["POST"])
+def webhook():
+    json_str = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return "OK", 200
 
-if __name__ == '__main__' :
-    port = int(os.environ.get("PORT", 10000))
+@app.route("/", methods=["GET"])
+def index():
+    return "Telegram bot is running!", 200
+
+if name == "main":
+    bot.remove_webhook()
+    bot.set_webhook(url=f"https://YOUR_RENDER_URL/{TOKEN}")  # ← שנה ל-URL שלך
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
