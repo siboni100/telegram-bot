@@ -92,7 +92,7 @@ def show_prices(call):
     markup = types.InlineKeyboardMarkup()
     for label, cb in prices[product]:
         markup.add(types.InlineKeyboardButton(label, callback_data=cb))
-path = images.get(product)
+    path = images.get(product)
     if path and os.path.exists(path):
         with open(path, 'rb') as photo:
             bot.send_photo(call.message.chat.id, photo, caption="בחר כמות:", reply_markup=markup)
