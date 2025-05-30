@@ -112,7 +112,8 @@ def handle_vapes(call):
         ("Blu frootz ❄️", "frootz"),
         ("LA Zkittlez 🍬", "zkittlez"),
         ("Wedding CK", "wedding")
-    ]
+    
+]
     for name, code in flavors:
         markup.add(types.InlineKeyboardButton(name, callback_data=f"flavor_{code}"))
 
@@ -167,10 +168,8 @@ def send_summary(message):
         f"סכום לתשלום: {price} ₪\n"
         f"יוזר: @{message.from_user.username or 'אין'}"
     )
-
     bot.send_message(message.chat.id, "✅ הזמנתך התקבלה!\nתודה שבחרת במיידי פראם 🫶")
     bot.send_message(ADMIN_CHAT_ID, summary)
-
     if method == "pickup":
         pickup_summary = (
             "🛍 הזמנת איסוף:\n"
