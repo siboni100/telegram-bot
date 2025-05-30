@@ -109,7 +109,7 @@ def show_moroccan(call):
     else:
         bot.send_message(call.message.chat.id, "בחר כמות:", reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: call.data == "and_beautiful")
+@bot.callback_query_handler(func=lambda call: call.data == "and_ beautiful")
 def handle_vapes(call):
     user_data[call.from_user.id]["product"] = "וייפים בטעמים"
     markup = types.InlineKeyboardMarkup()
@@ -122,7 +122,7 @@ def handle_vapes(call):
     for name, code in flavors:
         markup.add(types.InlineKeyboardButton(name, callback_data=f"flavor_{code}"))
 
-    path = "images/and_beautiful.MP4"
+    path = "images/and_ beautiful.MP4"
     if os.path.exists(path):
         with open(path, 'rb') as video:
             bot.send_video(call.message.chat.id, video, caption="בחר טעם:", reply_markup=markup)
