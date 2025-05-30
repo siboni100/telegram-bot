@@ -7,7 +7,7 @@ TOKEN = '7809342094:AAEivr0_RTMX6udxMPS8lVaNaEyepSv-rC4'
 ADMIN_CHAT_ID = 7759457391
 
 bot = telebot.TeleBot(TOKEN)
-app = Flask(name)
+app = Flask(__name__)
 user_data = {}
 
 prices_map = {
