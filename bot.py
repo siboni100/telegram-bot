@@ -181,3 +181,10 @@ def send_summary(message):
 
     bot.send_message(message.chat.id, summary)
     bot.send_message(ADMIN_CHAT_ID, summary)
+
+mport os
+
+if name == 'main':
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
