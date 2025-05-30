@@ -6,7 +6,7 @@ import os
 TOKEN = '7809342094:AAEivr0_RTMX6udxMPS8lVaNaEyepSv-rC4'
 ADMIN_CHAT_ID = 7759457391
 bot = telebot.TeleBot(TOKEN)
-app = Flask(__name__)  # ← תיקון כאן
+app = Flask(name)
 
 user_data = {}
 
@@ -23,8 +23,6 @@ prices_map = {
     "and_beautiful_zkittlez_1": 300, "and_beautiful_zkittlez_2": 550,
     "and_beautiful_wedding_1": 300, "and_beautiful_wedding_2": 550
 }
-
-# ========== BOT HANDLERS ==========
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -65,39 +63,49 @@ def show_products(message):
     markup.add(types.InlineKeyboardButton("חשיש", callback_data="moroccan"))
     bot.send_message(message.chat.id, "בחר מוצר:", reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: call.data in ["medica", "greenhouse", "boutique", "moroccan"])
+@bot.callback_query_handler(func=lambda call: call.data in ["medica", "greenhouse", "boutique"])
 def show_prices(call):
     product = call.data
     product_names = {
         "medica": "שקיות רפואי",
         "greenhouse": "חממה",
-        "boutique": "בוטיק",
-        "moroccan": "חשיש"
+        "boutique": "בוטיק"
     }
     user_data[call.from_user.id]["product"] = product_names[product]
 
     images = {
         "medica": "images/medica.jpg",
         "greenhouse": "images/greenhouse.jpg",
-        "boutique": "images/boutique.jpg",
-        "moroccan": "images/moroccan.jpg"
+        "boutique": "images/boutique.jpg"
     }
 
     prices = {
         "medica": [("1 - 400₪", "medica_1"), ("2 - 700₪", "medica_2"), ("3 - 1000₪", "medica_3")],
         "greenhouse": [("5 - 150₪", "greenhouse_5"), ("10 - 250₪", "greenhouse_10"), ("20 - 400₪", "greenhouse_20")],
-        "boutique": [("5 - 200₪", "boutique_5"), ("10 - 350₪", "boutique_10"), ("20 - 600₪", "boutique_20")],
-        "moroccan": [("1 - 1200₪", "moroccan_1"), ("2 - 2000₪", "moroccan_2")]
+        "boutique": [("5 - 200₪", "boutique_5"), ("10 - 350₪", "boutique_10"), ("20 - 600₪", "boutique_20")]
     }
 
     markup = types.InlineKeyboardMarkup()
-
     for label, cb in prices[product]:
         markup.add(types.InlineKeyboardButton(label, callback_data=cb))
-        path = images.get(product)
-        if path and os.path.exists(path):
-            with open(path, 'rb') as photo:
-                bot.send_photo(call.message.chat.id, photo, caption="בחר כמות:", reply_markup=markup)
+
+    path = images.get(product)
+    if path and os.path.exists(path):
+        with open(path, 'rb') as photo:
+            bot.send_photo(call.message.chat.id, photo, caption="בחר כמות:", reply_markup=markup)
+    else:
+        bot.send_message(call.message.chat.id, "בחר כמות:", reply_markup=markup)
+@bot.callback_query_handler(func=lambda call: call.data == "moroccan")
+def show_moroccan(call):
+    user_data[call.from_user.id]["product"] = "חשיש"
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("1 - 1200₪", callback_data="moroccan_1"))
+    markup.add(types.InlineKeyboardButton("2 - 2000₪", callback_data="moroccan_2"))
+
+    path = "images/moroccan.MP4"
+    if os.path.exists(path):
+        with open(path, 'rb') as video:
+            bot.send_video(call.message.chat.id, video, caption="בחר כמות:", reply_markup=markup)
     else:
         bot.send_message(call.message.chat.id, "בחר כמות:", reply_markup=markup)
 
@@ -168,8 +176,6 @@ def send_summary(message):
     bot.send_message(message.chat.id, "✅ הזמנתך התקבלה!\nתודה שבחרת במיידי פראם 🫶")
     bot.send_message(ADMIN_CHAT_ID, summary)
 
-# ========== FLASK ENDPOINT ==========
-
 @app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     json_str = request.get_data().decode("utf-8")
@@ -181,8 +187,8 @@ def webhook():
 def index():
     return "Telegram bot is running!", 200
 
-if __name__ == "__main__" :
+if name == "main":
     bot.remove_webhook()
-    bot.set_webhook(url="https://telegram-bot-z2i5.onrender.com/7809342094:AAEivr0_RTMX6udxMPS8lVaNaEyepSv-rC4")
+    bot.set_webhook(url=f"https://telegram-bot-z2i5.onrender.com/{TOKEN}")
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
