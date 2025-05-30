@@ -161,17 +161,17 @@ def send_summary(message):
     selection_key = data.get("selection", "-")
     price = prices_map.get(selection_key, "-")
 
-    summary = (
-        "📦 התקבלה הזמנה:\n"
-        f"שיטה: {'איסוף עצמי' if method == 'pickup' else 'משלוח'}\n"
-        f"שם: {name}\n"
-        f"כתובת: {address}\n"
-        f"טלפון: {phone}\n"
-        f"מוצר: {product}\n"
-        f"טעם: {flavor}\n"
-        f"כמות: {quantity}\n"
-        f"סכום לתשלום: {price} ₪\n"
-        f"יוזר: @{message.from_user.username or 'אין'}"
+    summary = f"""
+📦 התקבלה הזמנה:
+שיטה: {context.user_data.get('delivery_method', 'לא צוין')}
+שם: {context.user_data.get('name', 'לא צוין')}
+כתובת: {context.user_data.get('address', 'לא צוין')}
+טלפון: {context.user_data.get('phone', 'לא צוין')}
+מוצר: {context.user_data.get('product', 'לא צוין')}
+טעם: {context.user_data.get('flavor', 'לא צוין')}
+כמות: {context.user_data.get('amount', 'לא צוין')}
+סכום לתשלום: {context.user_data.get('price', 'לא צוין')} ₪
+"""
     )
     bot.send_message(message.chat.id, "✅ הזמנתך התקבלה!\nתודה שבחרת במיידי פראם 🫶")
     bot.send_message(ADMIN_CHAT_ID, summary)
