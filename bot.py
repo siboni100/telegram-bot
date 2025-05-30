@@ -172,7 +172,7 @@ def send_summary(message):
 כמות: {context.user_data.get('amount', 'לא צוין')}
 סכום לתשלום: {context.user_data.get('price', 'לא צוין')} ₪
 """
-    )
+
     bot.send_message(message.chat.id, "✅ הזמנתך התקבלה!\nתודה שבחרת במיידי פראם 🫶")
     bot.send_message(ADMIN_CHAT_ID, summary)
 
