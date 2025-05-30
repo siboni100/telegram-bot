@@ -1,4 +1,3 @@
-מיידי פראם 10, [30/05/2025 23:39]
 import telebot
 from telebot import types
 from flask import Flask, request
@@ -94,7 +93,6 @@ def show_prices(call):
     for label, cb in prices[product]:
         markup.add(types.InlineKeyboardButton(label, callback_data=cb))
 
-מיידי פראם 10, [30/05/2025 23:39]
 path = images.get(product)
     if path and os.path.exists(path):
         with open(path, 'rb') as photo:
