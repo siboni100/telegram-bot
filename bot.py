@@ -99,7 +99,7 @@ def callback_query(call):
         bag = data.replace('bag_', '')
         user_data[cid]['product'] = bag
         user_data[cid]['type'] = 'שקית רפואי'
-        ask_quantity(cid)
+        bot.send_message(cid, f"✅ בחרת: {bag}")
 
     elif data in prices:
         user_data[cid]['product'] = data
