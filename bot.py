@@ -114,27 +114,27 @@ def callback_query(call):
         user_data[cid]['product'] = data
         user_data[cid]['price'] = prices[data]
 
-    # אם מדובר במוצר שמכיל כבר כמות, נחלץ אותה מהשם (למשל greenhouse_5)
-    if any(data.startswith(prefix) for prefix in ['greenhouse_', 'vape_', 'medica_', 'boutique_', 'moroccan_']):
-        quantity = int(data.split('_')[-1])
-        user_data[cid]['quantity'] = quantity
-        ask_delivery(cid)
-    else:
-        ask_quantity(cid)
-
-    elif data.startswith('quantity_'):
-        quantity = int(data.replace('quantity_', ''))
-        user_data[cid]['quantity'] = quantity
-        ask_delivery(cid)
-
-    elif data in ['delivery', 'pickup']:
-        user_data[cid]['method'] = 'משלוח' if data == 'delivery' else 'איסוף'
-        if data == 'delivery':
-            bot.send_message(cid, "הכנס שם מלא:")
-            steps[cid] = 'name'
+        # אם מדובר במוצר שמכיל כבר כמות, נחלץ אותה מהשם (למשל greenhouse_5)
+        if any(data.startswith(prefix) for prefix in ['greenhouse_', 'vape_', 'medica_', 'boutique_', 'moroccan_']):
+            quantity = int(data.split('_')[-1])
+            user_data[cid]['quantity'] = quantity
+            ask_delivery(cid)
         else:
-            bot.send_message(cid, "הכנס שם לאיסוף:")
-            steps[cid] = 'pickup_name'
+            ask_quantity(cid)
+
+        elif data.startswith('quantity_'):
+            quantity = int(data.replace('quantity_', ''))
+            user_data[cid]['quantity'] = quantity
+            ask_delivery(cid)
+
+        elif data in ['delivery', 'pickup']:
+            user_data[cid]['method'] = 'משלוח' if data == 'delivery' else 'איסוף'
+            if data == 'delivery':
+                bot.send_message(cid, "הכנס שם מלא:")
+                steps[cid] = 'name'
+            else:
+                bot.send_message(cid, "הכנס שם לאיסוף:")
+                steps[cid] = 'pickup_name'
 
 def ask_quantity(cid):
     markup = types.InlineKeyboardMarkup()
