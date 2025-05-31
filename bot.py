@@ -110,9 +110,9 @@ def callback_query(call):
         markup.add(types.InlineKeyboardButton("3 = 1000₪", callback_data='medica_3'))
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
-    elif data in prices:
-    user_data[cid]['product'] = data
-    user_data[cid]['price'] = prices[data]
+ elif data in prices:
+        user_data[cid]['product'] = data
+        user_data[cid]['price'] = prices[data]
 
     # אם מדובר במוצר שמכיל כבר כמות, נחלץ אותה מהשם (למשל greenhouse_5)
     if any(data.startswith(prefix) for prefix in ['greenhouse_', 'vape_', 'medica_', 'boutique_', 'moroccan_']):
