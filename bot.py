@@ -15,7 +15,8 @@ prices = {
     'greenhouse_5': 150, 'greenhouse_10': 250, 'greenhouse_20': 400,
     'vape_1': 300, 'vape_2': 550,
     'medica_1': 400, 'medica_2': 700, 'medica_3': 1000,
-    'boutique_1': 1200, 'boutique_2': 2000
+    'boutique_5': 200, 'boutique_10': 350, 'boutique_20': 650,
+    'moroccan_1':1200, 'moroccan_2': 2000,
 }
 
 # סוגי שקיות
@@ -43,6 +44,10 @@ def handle_message(message):
     if text == 'חשיש':
         video = open('images/moroccan.MP4', 'rb')
         bot.send_video(cid, video)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("1 = 1200₪", callback_data='moroccan_1'))
+        markup.add(types.InlineKeyboardButton("2 = 2000₪", callback_data='moroccan_2'))
+        bot.send_message(cid, "בחר כמות:", reply_markup=markup)
     elif text == 'וייפים':
         video = open('images/and_beautiful.MP4', 'rb')
         bot.send_video(cid, video)
@@ -62,8 +67,9 @@ def handle_message(message):
         photo = open('images/boutique.jpg', 'rb')
         bot.send_photo(cid, photo)
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("1 = 1200₪", callback_data='boutique_1'))
-        markup.add(types.InlineKeyboardButton("2 = 2000₪", callback_data='boutique_2'))
+        markup.add(types.InlineKeyboardButton("5 = 200₪", callback_data='boutique_1'))
+        markup.add(types.InlineKeyboardButton("10 = 350₪", callback_data='boutique_2'))
+        markup.add(types.InlineKeyboardButton("20 = 650₪", callback_data='boutique_3'))
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
     elif text == 'שקיות רפואי':
         photo = open('images/medica.jpg', 'rb')
@@ -109,26 +115,28 @@ def handle_delivery(message):
         bot.send_message(cid, "אנא שלח שם מלא ומספר טלפון:")
         bot.register_next_step_handler(message, get_contact)
 
-def get_address(message):
-    cid = message.chat.id
-    user_data[cid]['address'] = message.text
-    send_summary(cid)
-
 def get_contact(message):
     cid = message.chat.id
     user_data[cid]['contact'] = message.text
     send_summary(cid)
 
-def send_summary(cid):
-    data = user_data[cid]
-    item = data.get('item', 'לא נבחר')
-    method = data.get('method')
-    details = data.get('address') if method == 'משלוח' else data.get('contact')
-    price = prices.get(item, 'לא ידוע')
+ר# במקום שבו אתה מקבל את המחיר (callback_data כמו boutique_1, vape_1 וכו')
+elif call.data in prices:
+    selected_price = prices[call.data]
+    user_data[chat_id]['price'] = selected_price
+    
+    # בנה סיכום הזמנה
+    product = user_data[chat_id].get('product', 'לא ידוע')
+    type_ = user_data[chat_id].get('type', 'לא נבחר')
+    price = selected_price
 
-    summary = f"🛒 הזמנה חדשה\n\nמוצר: {item}\nמחיר: {price}₪\nשיטה: {method}\nפרטים: {details}"
-    bot.send_message(cid, "תודה על ההזמנה ❤️")
-    bot.send_message(ADMIN_CHAT_ID, summary)
+    summary = f"🧾 סיכום הזמנה:\nמוצר: {product}\nסוג: {type_}\nמחיר: {price}₪"
+    
+    # שלח למשתמש
+    bot.send_message(chat_id, summary)
+    
+    # שלח למנהל
+    bot.send_message(ADMIN_CHAT_ID, f"📥 הזמנה חדשה מהמשתמש {chat_id}:\n{summary}")
 
 # Webhook
 @app.route(f"/{TOKEN}", methods=['POST'])
