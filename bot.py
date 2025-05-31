@@ -125,6 +125,12 @@ def callback_query(call):
             bot.send_message(cid, "הכנס שם לאיסוף:")
             steps[cid] = 'pickup_name'
 
+def ask_delivery(cid):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("משלוח", callback_data='delivery'))
+    markup.add(types.InlineKeyboardButton("איסוף עצמי", callback_data='pickup'))
+    bot.send_message(cid, "בחר שיטת קבלת ההזמנה:", reply_markup=markup)
+
 @bot.message_handler(func=lambda m: m.chat.id in steps)
 def collect_details(message):
     cid = message.chat.id
@@ -154,22 +160,23 @@ def collect_details(message):
 
 def send_summary(cid):
     data = user_data.get(cid, {})
-    username = f"@{bot.get_chat(cid).username}" if bot.get_chat(cid).username else f"ID: {cid}"
+    chat = bot.get_chat(cid)  # בקשת הצ'אט פעם אחת בלבד
+    username = f"@{chat.username}" if chat.username else f"ID: {cid}"
     price = int(data.get('price', 0)) * int(data.get('quantity', 1))
 
     summary = (
-        f"\U0001F9FE *סיכום הזמנה:*\n"
-        f"\U0001F464 לקוח: {username}\n"
-        f"\U0001F4DE טלפון: {data.get('phone', '---')}\n"
-        f"\U0001F4CD כתובת: {data.get('address', '---') if data.get('method') == 'משלוח' else 'איסוף עצמי'}\n"
-        f"\U0001F4E6 מוצר: {data.get('product', '---')}\n"
-        f"\U0001F522 כמות: {data.get('quantity', 1)}\n"
-        f"\U0001F4B8 מחיר כולל: {price}₪\n"
-        f"\U0001F69A שיטה: {data.get('method')}"
+        f"📾 סיכום הזמנה:\n"
+        f"👤 לקוח: {username}\n"
+        f"📞 טלפון: {data.get('phone', '---')}\n"
+        f"📍 כתובת: {data.get('address', '---') if data.get('method') == 'משלוח' else 'איסוף עצמי'}\n"
+        f"📦 מוצר: {data.get('product', '---')}\n"
+        f"🔢 כמות: {data.get('quantity', 1)}\n"
+        f"💰 מחיר כולל: {price}₪\n"
+        f"🚚 שיטה: {data.get('method', '---')}"
     )
 
-    bot.send_message(cid, summary, parse_mode="Markdown")
-    bot.send_message(ADMIN_CHAT_ID, f"\U0001F4E5 הזמנה חדשה:\n{summary}", parse_mode="Markdown")
+    bot.send_message(cid, summary)
+    bot.send_message(ADMIN_CHAT_ID, f"📩 הזמנה חדשה:\n{summary}")
     bot.send_message(cid, "תודה שבחרת במיידי פארם 🫶")
 
 # Webhook
