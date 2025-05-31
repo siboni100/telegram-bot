@@ -99,44 +99,47 @@ def callback_query(call):
         user_data[cid]['item'] = data
         ask_delivery(call.message)
 
-def ask_delivery(msg):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("משלוח", "איסוף")
-    bot.send_message(msg.chat.id, "איך תרצה לקבל את ההזמנה?", reply_markup=markup)
-@bot.message_handler(func=lambda m: m.text in ['משלוח', 'איסוף'])
-def handle_delivery(message):
-    cid = message.chat.id
-    method = message.text
-    user_data[cid]['method'] = method
+def send_summary(cid):
+    data = user_data.get(cid, {})
+
+    product = data.get('product', 'לא ידוע')
+    type_ = data.get('type', 'לא נבחר')
+    quantity = data.get('quantity', 1)
+    price = data.get('price', 'לא נבחר')
+    method = data.get('method', 'לא נבחר')
+    address = data.get('address', '---') if method == 'משלוח' else '---'
+    contact = data.get('contact', '---')
+    username = f"@{bot.get_chat(cid).username}" if bot.get_chat(cid).username else f"ID: {cid}"
+
     if method == 'משלוח':
-        bot.send_message(cid, "אנא שלח כתובת מלאה:")
-        bot.register_next_step_handler(message, get_address)
-    else:
-        bot.send_message(cid, "אנא שלח שם מלא ומספר טלפון:")
-        bot.register_next_step_handler(message, get_contact)
+        summary = (
+            f"🧾 *סיכום הזמנה:*\n"
+            f"👤 לקוח: {username}\n"
+            f"📞 פרטים: {contact}\n"
+            f"📍 כתובת: {address}\n"
+            f"📦 מוצר: {product}\n"
+            f"🧪 סוג: {type_}\n"
+            f"🔢 כמות: {quantity}\n"
+            f"💸 מחיר: {price}₪\n"
+            f"🚚 שיטה: {method}"
+        )
+    else:  # איסוף
+        summary = (
+            f"🧾 *סיכום הזמנה:*\n"
+            f"👤 לקוח: {username}\n"
+            f"📞 פרטים: {contact}\n"
+            f"📦 מוצר: {product}\n"
+            f"🧪 סוג: {type_}\n"
+            f"🔢 כמות: {quantity}\n"
+            f"💸 מחיר: {price}₪\n"
+            f"🚚 שיטה: {method}"
+        )
 
-def get_contact(message):
-    cid = message.chat.id
-    user_data[cid]['contact'] = message.text
-    send_summary(cid)
-
-ר# במקום שבו אתה מקבל את המחיר (callback_data כמו boutique_1, vape_1 וכו')
-elif call.data in prices:
-    selected_price = prices[call.data]
-    user_data[chat_id]['price'] = selected_price
-    
-    # בנה סיכום הזמנה
-    product = user_data[chat_id].get('product', 'לא ידוע')
-    type_ = user_data[chat_id].get('type', 'לא נבחר')
-    price = selected_price
-
-    summary = f"🧾 סיכום הזמנה:\nמוצר: {product}\nסוג: {type_}\nמחיר: {price}₪"
-    
     # שלח למשתמש
-    bot.send_message(chat_id, summary)
-    
+    bot.send_message(cid, summary, parse_mode="Markdown")
+
     # שלח למנהל
-    bot.send_message(ADMIN_CHAT_ID, f"📥 הזמנה חדשה מהמשתמש {chat_id}:\n{summary}")
+    bot.send_message(ADMIN_CHAT_ID, f"📥 הזמנה חדשה:\n{summary}", parse_mode="Markdown")
 
 # Webhook
 @app.route(f"/{TOKEN}", methods=['POST'])
