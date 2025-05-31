@@ -158,7 +158,7 @@ def webhook():
 def index():
     return 'Bot is running', 200
 
- if  __name__ == '__main__' :
+if  __name__ == '__main__' :
      bot.remove_webhook()
      bot.set_webhook(url="https://telegram-bot-z2i5.onrender.com/7809342094:AAHLYD5GM1lZFBAR20oJXjdZZCtAEoTdFnc")
      port = int(os.environ.get('PORT', 5000))
