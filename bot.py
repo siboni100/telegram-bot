@@ -110,7 +110,7 @@ def callback_query(call):
         markup.add(types.InlineKeyboardButton("3 = 1000₪", callback_data='medica_3'))
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
- elif data in prices:
+     elif data in prices :
         user_data[cid]['product'] = data
         user_data[cid]['price'] = prices[data]
 
