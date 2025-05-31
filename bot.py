@@ -10,185 +10,156 @@ app = Flask(__name__)
 
 user_data = {}
 
-prices_map = {
-    "medica_1": 400, "medica_2": 700, "medica_3": 1000,
-    "greenhouse_5": 150, "greenhouse_10": 250, "greenhouse_20": 400,
-    "boutique_5": 200, "boutique_10": 350, "boutique_20": 600,
-    "moroccan_1": 1200, "moroccan_2": 2000,
-    "and_beautiful_frozen_1": 300, "and_beautiful_frozen_2": 550,
-    "and_beautiful_apple_1": 300, "and_beautiful_apple_2": 550,
-    "and_beautiful_papaya_1": 300, "and_beautiful_papaya_2": 550,
-    "and_beautiful_velvet_1": 300, "and_beautiful_velvet_2": 550,
-    "and_beautiful_frootz_1": 300, "and_beautiful_frootz_2": 550,
-    "and_beautiful_zkittlez_1": 300, "and_beautiful_zkittlez_2": 550,
-    "and_beautiful_wedding_1": 300, "and_beautiful_wedding_2": 550
+# Prices
+prices = {
+    'greenhouse_5': 150, 'greenhouse_10': 250, 'greenhouse_20': 400,
+    'vape_1': 300, 'vape_2': 550,
+    'boutique_1': 1200, 'boutique_2': 2000,
+    'medica_1': 400, 'medica_2': 700, 'medica_3': 1000
 }
 
+# Start command
 @bot.message_handler(commands=['start'])
 def start(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("איסוף עצמי", callback_data="pickup"))
-    markup.add(types.InlineKeyboardButton("משלוח", callback_data="delivery"))
-    bot.send_message(message.chat.id, "בחר שיטת קבלה:", reply_markup=markup)
+    user_data[message.from_user.id] = {}
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.row('חשיש', 'וייפים')
+    markup.row('בוטיק', 'חממה', 'שקיות')
+    bot.send_message(message.chat.id, 'שלום וברוך הבא למיידי פארם – הבית של הרפואי 🌿', reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: call.data in ["pickup", "delivery"])
-def handle_method(call):
-    user_data[call.from_user.id] = {}
-    user_data[call.from_user.id]["delivery_method"] = "איסוף עצמי" if call.data == "pickup" else "משלוח"
-    
-    bot.send_message(call.message.chat.id, "הכנס את שמך:")
-    bot.register_next_step_handler(call.message, get_name)
+@bot.message_handler(func=lambda msg: msg.text in ['חממה', 'וייפים', 'חשיש', 'בוטיק', 'שקיות'])
+def handle_menu(message):
+    choice = message.text
+    user_data[message.from_user.id]['category'] = choice
+
+    if choice == 'חממה':
+        send_image_with_options(message, 'greenhouse.jpg', [
+            ('5 - 150₪', 'greenhouse_5'),
+            ('10 - 250₪', 'greenhouse_10'),
+            ('20 - 400₪', 'greenhouse_20')
+        ])
+    elif choice == 'וייפים':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        flavors = ['Frozen grapes', 'Apple jam', 'Papaya', 'Blu velvet', 'Blu frootz', 'LA Zkittlez', 'Wedding CK']
+        for f in flavors:
+            markup.add(f)
+        send_video(message.chat.id, 'and_deautiful.Mp4', 'בחר טעם:', markup)
+    elif choice == 'חשיש':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('1 - 1200₪', callback_data='boutique_1'))
+        markup.add(types.InlineKeyboardButton('2 - 2000₪', callback_data='boutique_2'))
+        send_video(message.chat.id, 'moroccan.Mp4', 'בחר כמות:', markup)
+    elif choice == 'בוטיק':
+        send_image_with_options(message, 'boutique.jpg', [
+            ('1 - 400₪', 'medica_1'),
+            ('2 - 700₪', 'medica_2'),
+            ('3 - 1000₪', 'medica_3')
+        ])
+    elif choice == 'שקיות':
+        show_bag_types(message)
+
+def send_image_with_options(message, path, options):
+    markup = types.InlineKeyboardMarkup()
+    for text, cb in options:
+        markup.add(types.InlineKeyboardButton(text, callback_data=cb))
+    with open(f'images/{path}', 'rb') as photo:
+        bot.send_photo(message.chat.id, photo, caption='בחר כמות:', reply_markup=markup)
+
+def send_image(chat_id, path, caption):
+    with open(f'images/{path}', 'rb') as photo:
+        bot.send_photo(chat_id, photo, caption=caption)
+
+def send_video(chat_id, path, caption, markup):
+    with open(f'images/{path}', 'rb') as video:
+        bot.send_video(chat_id, video, caption=caption, reply_markup=markup)
+
+@bot.message_handler(func=lambda m: m.text in ['Frozen grapes', 'Apple jam', 'Papaya', 'Blu velvet', 'Blu frootz', 'LA Zkittlez', 'Wedding CK'])
+def handle_vape_flavor(message):
+    user_data[message.from_user.id]['flavor'] = message.text
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton('1 - 300₪', callback_data='vape_1'))
+    markup.add(types.InlineKeyboardButton('2 - 550₪', callback_data='vape_2'))
+    bot.send_message(message.chat.id, 'בחר כמות:', reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: True)
+def handle_selection(call):
+    user_data[call.from_user.id]['selection'] = call.data
+    bot.send_message(call.message.chat.id, 'איך תרצה לקבל את ההזמנה? איסוף או משלוח?')
+    bot.register_next_step_handler(call.message, get_delivery_method)
+
+def get_delivery_method(message):
+    text = message.text.strip()
+    if 'משלוח' in text:
+        bot.send_message(message.chat.id, 'הכנס כתובת מלאה:')
+        bot.register_next_step_handler(message, get_address)
+    else:
+        bot.send_message(message.chat.id, 'הכנס שם מלא:')
+        bot.register_next_step_handler(message, get_name)
+def get_address(message):
+    user_data[message.from_user.id]['address'] = message.text
+    bot.send_message(message.chat.id, 'הכנס שם מלא:')
+    bot.register_next_step_handler(message, get_name)
 
 def get_name(message):
-    user_data[message.from_user.id]["name"] = message.text
-    bot.send_message(message.chat.id, "הכנס את הכתובת:")
-    bot.register_next_step_handler(message, get_address)
-
-def get_address(message):
-    user_data[message.from_user.id]["address"] = message.text
-    bot.send_message(message.chat.id, "הכנס את מספר הטלפון:")
+    user_data[message.from_user.id]['name'] = message.text
+    bot.send_message(message.chat.id, 'הכנס מספר טלפון:')
     bot.register_next_step_handler(message, get_phone)
 
 def get_phone(message):
-    user_data[message.from_user.id]["phone"] = message.text
-    # פה תוכל להמשיך לשלב בחירת מוצר או טעם
-    bot.send_message(message.chat.id, "עכשיו בחר מוצר...")  # המשך תהליך
-def show_products(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("שקיות רפואי", callback_data="medica"))
-    markup.add(types.InlineKeyboardButton("חממה", callback_data="greenhouse"))
-    markup.add(types.InlineKeyboardButton("בוטיק", callback_data="boutique"))
-    markup.add(types.InlineKeyboardButton("וייפים בטעמים", callback_data="and_beautiful"))
-    markup.add(types.InlineKeyboardButton("חשיש", callback_data="moroccan"))
-    bot.send_message(message.chat.id, "בחר מוצר:", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: call.data in ["medica", "greenhouse", "boutique"])
-def show_prices(call):
-    product = call.data
-    product_names = {
-        "medica": "שקיות רפואי",
-        "greenhouse": "חממה",
-        "boutique": "בוטיק"
-    }
-    user_data[call.from_user.id]["product"] = product_names[product]
-
-    images = {
-        "medica": "images/medica.jpg",
-        "greenhouse": "images/greenhouse.jpg",
-        "boutique": "images/boutique.jpg"
-    }
-
-    prices = {
-        "medica": [("1 - 400₪", "medica_1"), ("2 - 700₪", "medica_2"), ("3 - 1000₪", "medica_3")],
-        "greenhouse": [("5 - 150₪", "greenhouse_5"), ("10 - 250₪", "greenhouse_10"), ("20 - 400₪", "greenhouse_20")],
-        "boutique": [("5 - 200₪", "boutique_5"), ("10 - 350₪", "boutique_10"), ("20 - 600₪", "boutique_20")]
-    }
-
-    markup = types.InlineKeyboardMarkup()
-    for label, cb in prices[product]:
-        markup.add(types.InlineKeyboardButton(label, callback_data=cb))
-
-    path = images.get(product)
-    if path and os.path.exists(path):
-        with open(path, 'rb') as photo:
-            bot.send_photo(call.message.chat.id, photo, caption="בחר כמות:", reply_markup=markup)
-    else:
-        bot.send_message(call.message.chat.id, "בחר כמות:", reply_markup=markup)
-@bot.callback_query_handler(func=lambda call: call.data == "moroccan")
-def show_moroccan(call):
-    user_data[call.from_user.id]["product"] = "חשיש"
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("1 - 1200₪", callback_data="moroccan_1"))
-    markup.add(types.InlineKeyboardButton("2 - 2000₪", callback_data="moroccan_2"))
-
-    path = "images/moroccan.MP4"
-    if os.path.exists(path):
-        with open(path, 'rb') as video:
-            bot.send_video(call.message.chat.id, video, caption="בחר כמות:", reply_markup=markup)
-    else:
-        bot.send_message(call.message.chat.id, "בחר כמות:", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: call.data == "and_ beautiful")
-def handle_vapes(call):
-    user_data[call.from_user.id]["product"] = "וייפים בטעמים"
-    markup = types.InlineKeyboardMarkup()
-    
-    flavors = [
-        ("Frozen grapes 🍇", "frozen"), ("Apple jam 🍏", "apple"),
-        ("Papaya 🍑", "papaya"), ("Blu velvet 🫐", "velvet"),
-        ("Blu frootz ❄️", "frootz"), ("LA Zkittlez 🍬", "zkittlez"),
-        ("Wedding CK", "wedding")
-    ]
-    for name, code in flavors:
-        markup.add(types.InlineKeyboardButton(name, callback_data=f"flavor_{code}"))
-
-    path = "images/and_ beautiful.MP4"
-    if os.path.exists(path):
-        with open(path, 'rb') as video:
-            bot.send_video(call.message.chat.id, video, caption="בחר טעם:", reply_markup=markup)
-    else:
-        bot.send_message(call.message.chat.id, "בחר טעם:", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith("flavor_"))
-def handle_flavor(call):
-    flavor = call.data.replace("flavor_", "")
-    user_data[call.from_user.id]["flavor"] = flavor
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("1 - 300₪", callback_data=f"and_beautiful_{flavor}_1"))
-    markup.add(types.InlineKeyboardButton("2 - 550₪", callback_data=f"and_beautiful_{flavor}_2"))
-    bot.send_message(call.message.chat.id, "בחר כמות:", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: call.data in prices_map)
-def handle_quantity(call):
-    user_data[call.from_user.id]["selection"] = call.data
-    parts = call.data.split("_")
-    if len(parts) > 2:
-        user_data[call.from_user.id]["flavor"] = parts[2]
-        user_data[call.from_user.id]["quantity"] = parts[3] if len(parts) > 3 else "-"
-    else:
-        user_data[call.from_user.id]["quantity"] = parts[-1]
-    send_summary(call.message)
+    user_data[message.from_user.id]['phone'] = message.text
+    send_summary(message)
 
 def send_summary(message):
     data = user_data.get(message.from_user.id, {})
-    method = data.get("method", "-")
-    name = data.get("name", message.from_user.first_name)
-    address = data.get("address", "-")
-    phone = data.get("phone", "-")
-    product = data.get("product", "None")
-    flavor = data.get("flavor", "ללא")
-    quantity = data.get("quantity", "-")
-    selection_key = data.get("selection", "-")
-    price = prices_map.get(selection_key, "-")
+    flavor = data.get('flavor', '-')
+    selection = data.get('selection', '-')
+    price = prices.get(selection, '-')
+    address = data.get('address', '-')
+    name = data.get('name', '-')
+    phone = data.get('phone', '-')
+    category = data.get('category', '-')
 
-    summary = f"""📦 התקבלה הזמנה:
+    summary = (
+        f"📦 הזמנה חדשה:\n"
+        f"שם: {name}\n"
+        f"טלפון: {phone}\n"
+        f"כתובת: {address}\n"
+        f"קטגוריה: {category}\n"
+        f"טעם (אם קיים): {flavor}\n"
+        f"פריט: {selection}\n"
+        f"מחיר: {price} ₪\n"
+        f"יוזר: @{message.from_user.username or 'אין'}"
+    )
 
-שיטה: {context.user_data.get('delivery_method', 'לא צוין')}
-שם: {context.user_data.get('name', 'לא צוין')}
-כתובת: {context.user_data.get('address', 'לא צוין')}
-טלפון: {context.user_data.get('phone', 'לא צוין')}
-מוצר: {context.user_data.get('product', 'לא צוין')}
-טעם: {context.user_data.get('flavor', 'לא צוין')}
-כמות: {context.user_data.get('amount', 'לא צוין')}
-סכום לתשלום: {context.user_data.get('price', 'לא צוין')}
-"""
-
-    bot.send_message(message.chat.id, "✅ הזמנתך התקבלה!\nתודה שבחרת במיידי פראם 🫶")
+    bot.send_message(message.chat.id, '✅ הזמנתך התקבלה! תודה שבחרת במיידי פארם 🫶')
     bot.send_message(ADMIN_CHAT_ID, summary)
 
-@app.route(f"/{TOKEN}", methods=["POST"])
+def show_bag_types(message):
+    text = """מלאי שקיות חדש:
+⭐️ סטיבה:
+תל אביב, גין גאי, אלסקה, אולטרא סאוור, טי סי, סינרג׳י, מרמלדה, תכלת, מיאמי סקי, גי דיזל, אורגינל גי סי
+
+⭐️ אינדיקה:
+קוטון קנדי, פרפל גלו, מירקל אילן קוקיז, בלו מון, קריטיקל טיקס, תלתן סגול, בראוניז, הולנדי, הינדו, רפאל, גורילה גלו
+
+⭐️ היברידי:
+הי מאיה, סטרוננה, בלו אמרלד, בנגו, אטומטיק, וודינג סי קי"""
+    with open('images/medica.jpg', 'rb') as img:
+        bot.send_photo(message.chat.id, img, caption=text)
+
+# Flask routes
+@app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
-    json_str = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_str)
+    update = telebot.types.Update.de_json(request.stream.read().decode('utf-8'))
     bot.process_new_updates([update])
-    return "OK", 200
+    return '', 200
 
-@app.route("/", methods=["GET"])
+@app.route('/', methods=['GET'])
 def index():
-    return "Telegram bot is running!", 200
+    return 'Bot is running', 200
 
-if __name__ == "__main__" :
+if  __name__ == '__main__' :
     bot.remove_webhook()
-    bot.set_webhook(url=f"https://telegram-bot-z2i5.onrender.com/{TOKEN}")
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+      bot.set_webhook(url="https://telegram-bot-z2i5.onrender.com/7809342094:AAHLYD5GM1lZFBAR20oJXjdZZCtAEoTdFnc")
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
