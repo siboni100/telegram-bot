@@ -164,9 +164,9 @@ def send_summary(cid):
     data = user_data.get(cid, {})
     username = f"@{bot.get_chat(cid).username}" if bot.get_chat(cid).username else f"ID: {cid}"
     price = int(data.get('price', 0)) * int(data.get('quantity', 1))
+
     summary = (
-        f"🧾 *סיכום הזמנה:*
-"
+        f"🧾 *סיכום הזמנה:*\n"
         f"👤 לקוח: {username}\n"
         f"📞 טלפון: {data.get('phone', '---')}\n"
         f"📍 כתובת: {data.get('address', '---') if data.get('method') == 'משלוח' else 'איסוף עצמי'}\n"
