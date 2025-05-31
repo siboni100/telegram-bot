@@ -6,7 +6,7 @@ import os
 TOKEN =  '7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo'
 ADMIN_CHAT_ID = 7759457391
 bot = telebot.TeleBot(TOKEN)
-app = Flask(name)
+app = Flask(__name__)
 
 user_data = {}
 steps = {}
@@ -189,7 +189,7 @@ def webhook():
 def index():
     return "Bot is running", 200
 
-if name == 'main':
+if  __name__ == '__main__' :
     bot.remove_webhook()
     bot.set_webhook(url=f"https://telegram-bot-zzi5.onrender.com/7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo")
     port = int(os.environ.get('PORT', 5000))
