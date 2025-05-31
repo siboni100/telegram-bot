@@ -3,12 +3,13 @@ from telebot import types
 from flask import Flask, request
 import os
 
-TOKEN = '7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo'
-ADMIN_CHAT_ID = 7759457391  # שים את ה-ID שלך פה
+TOKEN =  "7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo"
+ADMIN_CHAT_ID = 7759457391
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 user_data = {}
+steps = {}
 
 # מחירים
 prices = {
@@ -16,7 +17,7 @@ prices = {
     'vape_1': 300, 'vape_2': 550,
     'medica_1': 400, 'medica_2': 700, 'medica_3': 1000,
     'boutique_5': 200, 'boutique_10': 350, 'boutique_20': 650,
-    'moroccan_1':1200, 'moroccan_2': 2000,
+    'moroccan_1': 1200, 'moroccan_2': 2000,
 }
 
 # סוגי שקיות
@@ -26,16 +27,15 @@ bags = {
     'היברידי': ['הי מאיה', 'סטרוננה', 'בלו אמרלד', 'בנגו', 'אטומטיק', 'וודינג סי קי']
 }
 
-# התחלה
 @bot.message_handler(commands=['start'])
 def start(message):
-    user_data[message.chat.id] = {}
+    cid = message.chat.id
+    user_data[cid] = {}
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add('חשיש', 'וייפים')
     markup.add('בוטיק', 'חממה', 'שקיות רפואי')
-    bot.send_message(message.chat.id, "ברוך הבא למיידי פארם, בחר קטגוריה:", reply_markup=markup)
+    bot.send_message(cid, "ברוך הבא למיידי פארם, בחר קטגוריה:", reply_markup=markup)
 
-# הודעות כלליות
 @bot.message_handler(func=lambda m: True)
 def handle_message(message):
     cid = message.chat.id
@@ -48,6 +48,7 @@ def handle_message(message):
         markup.add(types.InlineKeyboardButton("1 = 1200₪", callback_data='moroccan_1'))
         markup.add(types.InlineKeyboardButton("2 = 2000₪", callback_data='moroccan_2'))
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
+
     elif text == 'וייפים':
         video = open('images/and_beautiful.MP4', 'rb')
         bot.send_video(cid, video)
@@ -55,6 +56,7 @@ def handle_message(message):
         markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
         markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
+
     elif text == 'חממה':
         photo = open('images/greenhouse.jpg', 'rb')
         bot.send_photo(cid, photo)
@@ -63,14 +65,16 @@ def handle_message(message):
         markup.add(types.InlineKeyboardButton("10 גרם - 250₪", callback_data='greenhouse_10'))
         markup.add(types.InlineKeyboardButton("20 גרם - 400₪", callback_data='greenhouse_20'))
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
+
     elif text == 'בוטיק':
         photo = open('images/boutique.jpg', 'rb')
         bot.send_photo(cid, photo)
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("5 = 200₪", callback_data='boutique_1'))
-        markup.add(types.InlineKeyboardButton("10 = 350₪", callback_data='boutique_2'))
-        markup.add(types.InlineKeyboardButton("20 = 650₪", callback_data='boutique_3'))
+        markup.add(types.InlineKeyboardButton("5 = 200₪", callback_data='boutique_5'))
+        markup.add(types.InlineKeyboardButton("10 = 350₪", callback_data='boutique_10'))
+        markup.add(types.InlineKeyboardButton("20 = 650₪", callback_data='boutique_20'))
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
+
     elif text == 'שקיות רפואי':
         photo = open('images/medica.jpg', 'rb')
         bot.send_photo(cid, photo)
@@ -79,7 +83,6 @@ def handle_message(message):
             markup.add(types.InlineKeyboardButton(category, callback_data=f'bag_type_{category}'))
         bot.send_message(cid, "בחר סוג:", reply_markup=markup)
 
-# לחיצה על כפתורים
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     cid = call.message.chat.id
@@ -91,54 +94,88 @@ def callback_query(call):
         for item in bags[category]:
             markup.add(types.InlineKeyboardButton(item, callback_data=f'bag_{item}'))
         bot.send_message(cid, f"בחר שקית ({category}):", reply_markup=markup)
-    elif data.startswith('bag_'):
+
+elif data.startswith('bag_'):
         bag = data.replace('bag_', '')
-        user_data[cid]['item'] = bag
+        user_data[cid]['product'] = bag
+        user_data[cid]['type'] = 'שקית רפואי'
+        ask_quantity(cid)
+
+    elif data in prices:
+        user_data[cid]['product'] = data
+        user_data[cid]['price'] = prices[data]
+        ask_quantity(cid)
+
+    elif data.startswith('quantity_'):
+        quantity = int(data.replace('quantity_', ''))
+        user_data[cid]['quantity'] = quantity
         ask_delivery(call.message)
-    else:
-        user_data[cid]['item'] = data
-        ask_delivery(call.message)
+
+    elif data in ['delivery', 'pickup']:
+        user_data[cid]['method'] = 'משלוח' if data == 'delivery' else 'איסוף'
+        if data == 'delivery':
+            bot.send_message(cid, "הכנס שם מלא:")
+            steps[cid] = 'name'
+        else:
+            bot.send_message(cid, "הכנס שם לאיסוף:")
+            steps[cid] = 'pickup_name'
+
+def ask_quantity(cid):
+    markup = types.InlineKeyboardMarkup()
+    for i in range(1, 6):
+        markup.add(types.InlineKeyboardButton(str(i), callback_data=f'quantity_{i}'))
+    bot.send_message(cid, "בחר כמות:", reply_markup=markup)
+
+def ask_delivery(message):
+    cid = message.chat.id
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("משלוח", callback_data='delivery'))
+    markup.add(types.InlineKeyboardButton("איסוף", callback_data='pickup'))
+    bot.send_message(cid, "בחר שיטה:", reply_markup=markup)
+
+@bot.message_handler(func=lambda m: m.chat.id in steps)
+def collect_details(message):
+    cid = message.chat.id
+    step = steps[cid]
+    text = message.text
+
+    if step == 'name':
+        user_data[cid]['name'] = text
+        bot.send_message(cid, "הכנס כתובת מלאה:")
+        steps[cid] = 'address'
+    elif step == 'address':
+        user_data[cid]['address'] = text
+        bot.send_message(cid, "הכנס מספר טלפון:")
+        steps[cid] = 'phone'
+    elif step == 'phone':
+        user_data[cid]['phone'] = text
+        send_summary(cid)
+        steps.pop(cid)
+    elif step == 'pickup_name':
+        user_data[cid]['name'] = text
+        bot.send_message(cid, "הכנס מספר טלפון:")
+        steps[cid] = 'pickup_phone'
+    elif step == 'pickup_phone':
+        user_data[cid]['phone'] = text
+        send_summary(cid)
+        steps.pop(cid)
 
 def send_summary(cid):
     data = user_data.get(cid, {})
-
-    product = data.get('product', 'לא ידוע')
-    type_ = data.get('type', 'לא נבחר')
-    quantity = data.get('quantity', 1)
-    price = data.get('price', 'לא נבחר')
-    method = data.get('method', 'לא נבחר')
-    address = data.get('address', '---') if method == 'משלוח' else '---'
-    contact = data.get('contact', '---')
     username = f"@{bot.get_chat(cid).username}" if bot.get_chat(cid).username else f"ID: {cid}"
-
-    if method == 'משלוח':
-        summary = (
-            f"🧾 *סיכום הזמנה:*\n"
-            f"👤 לקוח: {username}\n"
-            f"📞 פרטים: {contact}\n"
-            f"📍 כתובת: {address}\n"
-            f"📦 מוצר: {product}\n"
-            f"🧪 סוג: {type_}\n"
-            f"🔢 כמות: {quantity}\n"
-            f"💸 מחיר: {price}₪\n"
-            f"🚚 שיטה: {method}"
-        )
-    else:  # איסוף
-        summary = (
-            f"🧾 *סיכום הזמנה:*\n"
-            f"👤 לקוח: {username}\n"
-            f"📞 פרטים: {contact}\n"
-            f"📦 מוצר: {product}\n"
-            f"🧪 סוג: {type_}\n"
-            f"🔢 כמות: {quantity}\n"
-            f"💸 מחיר: {price}₪\n"
-            f"🚚 שיטה: {method}"
-        )
-
-    # שלח למשתמש
+    price = int(data.get('price', 0)) * int(data.get('quantity', 1))
+    summary = (
+        f"🧾 *סיכום הזמנה:*
+"
+        f"👤 לקוח: {username}\n"
+        f"📞 טלפון: {data.get('phone', '---')}\n"
+        f"📍 כתובת: {data.get('address', '---') if data.get('method') == 'משלוח' else 'איסוף עצמי'}\n"
+        f"📦 מוצר: {data.get('product', '---')}\n"
+        f"🔢 כמות: {data.get('quantity', 1)}\n"
+        f"💸 מחיר כולל: {price}₪\n"
+        f"🚚 שיטה: {data.get('method')}"
+    )
     bot.send_message(cid, summary, parse_mode="Markdown")
-
-    # שלח למנהל
     bot.send_message(ADMIN_CHAT_ID, f"📥 הזמנה חדשה:\n{summary}", parse_mode="Markdown")
 
 # Webhook
