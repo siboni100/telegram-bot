@@ -38,7 +38,7 @@ def start(message):
 def main_menu(cid):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("חשיש", callback_data='menu_hashish'))
-    markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_vape'))
+    markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_and_beautiful.MP4'))
     markup.add(types.InlineKeyboardButton("בוטיק", callback_data='menu_boutique'))
     markup.add(types.InlineKeyboardButton("חממה", callback_data='menu_greenhouse'))
     markup.add(types.InlineKeyboardButton("שקיות רפואי", callback_data='menu_medica'))
@@ -59,15 +59,15 @@ def callback_query(call):
             markup.add(types.InlineKeyboardButton("2 = 2000₪", callback_data='moroccan_2'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
-        elif category == 'vape':
+        elif category == 'and_beautiful.MP4':
             video = open('images/and_beautiful.MP4', 'rb')
             bot.send_video(cid, video)
             markup = types.InlineKeyboardMarkup()
-            markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
-            markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
+            markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='and_beautiful.MP4_1'))
+            markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='and_beautiful.MP4_2'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
-        elif category == 'greenhouse':
+        elif category == 'greenhouse.jpg':
             photo = open('images/greenhouse.jpg', 'rb')
             bot.send_photo(cid, photo)
             markup = types.InlineKeyboardMarkup()
@@ -76,7 +76,7 @@ def callback_query(call):
             markup.add(types.InlineKeyboardButton("20 גרם - 400₪", callback_data='greenhouse_20'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
-    elif category == 'boutique':
+    elif category == 'boutique.jpg':
             photo = open('images/boutique.jpg', 'rb')
             bot.send_photo(cid, photo)
             markup = types.InlineKeyboardMarkup()
@@ -85,7 +85,7 @@ def callback_query(call):
             markup.add(types.InlineKeyboardButton("20 = 650₪", callback_data='boutique_20'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
-    elif category == 'medica':
+    elif category == 'medica.jpg':
             photo = open('images/medica.jpg', 'rb')
             bot.send_photo(cid, photo)
             markup = types.InlineKeyboardMarkup()
@@ -111,8 +111,15 @@ def callback_query(call):
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
     elif data in prices:
-        user_data[cid]['product'] = data
-        user_data[cid]['price'] = prices[data]
+    user_data[cid]['product'] = data
+    user_data[cid]['price'] = prices[data]
+
+    # אם מדובר במוצר שמכיל כבר כמות, נחלץ אותה מהשם (למשל greenhouse_5)
+    if any(data.startswith(prefix) for prefix in ['greenhouse_', 'vape_', 'medica_', 'boutique_', 'moroccan_']):
+        quantity = int(data.split('_')[-1])
+        user_data[cid]['quantity'] = quantity
+        ask_delivery(cid)
+    else:
         ask_quantity(cid)
 
     elif data.startswith('quantity_'):
