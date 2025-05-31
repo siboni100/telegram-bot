@@ -20,7 +20,6 @@ prices = {
     'moroccan_1': 1200, 'moroccan_2': 2000,
 }
 
-# סוגי שקיות
 bags = {
     'סטיבה': ['תל אביב', 'גין גאי', 'אלסקה', 'אולטרא סאוור', 'טי סי', 'סינרג׳י', 'מרמלדה', 'תכלת', 'מיאמי סקי', 'גי דיזל', 'אורגינל גי סי'],
     'אינדיקה': ['קוטון קנדי', 'פרפל גלו', 'מירקל אילן קוקיז', 'בלו מון', 'קריטיקל טיקס', 'תלתן סגול', 'בראוניז', 'הולנדי', 'הינדו', 'רפאל', 'גורילה גלו'],
@@ -38,7 +37,7 @@ def start(message):
 def main_menu(cid):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("חשיש", callback_data='menu_hashish'))
-    markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_vape'))
+    markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_and_beautiful.MP4'))
     markup.add(types.InlineKeyboardButton("בוטיק", callback_data='menu_boutique'))
     markup.add(types.InlineKeyboardButton("חממה", callback_data='menu_greenhouse'))
     markup.add(types.InlineKeyboardButton("שקיות רפואי", callback_data='menu_medica'))
@@ -59,7 +58,7 @@ def callback_query(call):
             markup.add(types.InlineKeyboardButton("2 = 2000₪", callback_data='moroccan_2'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
-        elif category == 'vape':
+        elif category == 'and_beautiful.MP4':
             video = open('images/and_beautiful.MP4', 'rb')
             bot.send_video(cid, video)
             markup = types.InlineKeyboardMarkup()
@@ -113,16 +112,7 @@ def callback_query(call):
     elif data in prices:
         user_data[cid]['product'] = data
         user_data[cid]['price'] = prices[data]
-
-        if any(data.startswith(prefix) for prefix in ['greenhouse_', 'vape_', 'medica_', 'boutique_', 'moroccan_']):
-            quantity = int(data.split('_')[-1])
-            user_data[cid]['quantity'] = quantity
-            ask_delivery(cid)
-        else:
-            ask_quantity(cid)
-
-    elif data.startswith('quantity_'):
-        quantity = int(data.replace('quantity_', ''))
+        quantity = int(data.split('_')[-1])
         user_data[cid]['quantity'] = quantity
         ask_delivery(cid)
 
@@ -134,18 +124,6 @@ def callback_query(call):
         else:
             bot.send_message(cid, "הכנס שם לאיסוף:")
             steps[cid] = 'pickup_name'
-
-def ask_quantity(cid):
-    markup = types.InlineKeyboardMarkup()
-    for i in range(1, 6):
-        markup.add(types.InlineKeyboardButton(f"{i}", callback_data=f"quantity_{i}"))
-    bot.send_message(cid, "בחר כמות:", reply_markup=markup)
-
-def ask_delivery(cid):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("משלוח", callback_data='delivery'))
-    markup.add(types.InlineKeyboardButton("איסוף", callback_data='pickup'))
-    bot.send_message(cid, "בחר שיטה:", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: m.chat.id in steps)
 def collect_details(message):
@@ -192,7 +170,7 @@ def send_summary(cid):
 
     bot.send_message(cid, summary, parse_mode="Markdown")
     bot.send_message(ADMIN_CHAT_ID, f"\U0001F4E5 הזמנה חדשה:\n{summary}", parse_mode="Markdown")
-    bot.send_message(cid, "תודה שבחרת ב־Miday Pharma 🌿")
+    bot.send_message(cid, "תודה שבחרת במיידי פארם 🫶")
 
 # Webhook
 @app.route(f"/{TOKEN}", methods=['POST'])
