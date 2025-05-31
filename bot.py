@@ -120,11 +120,6 @@ def callback_query(call):
             bot.send_message(cid, "הכנס שם לאיסוף:")
             steps[cid] = 'pickup_name'
 
-def ask_quantity(cid):
-    markup = types.InlineKeyboardMarkup()
-    for i in range(1, 6):
-        markup.add(types.InlineKeyboardButton(str(i), callback_data=f'quantity_{i}'))
-    bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
 def ask_delivery(message):
     cid = message.chat.id
