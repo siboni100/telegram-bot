@@ -95,23 +95,23 @@ def callback_query(call):
             markup.add(types.InlineKeyboardButton(item, callback_data=f'bag_{item}'))
         bot.send_message(cid, f"בחר שקית ({category}):", reply_markup=markup)
 
-    elif data.startswith('bag_'):
+     elif data.startswith('bag_'):
         bag = data.replace('bag_', '')
         user_data[cid]['product'] = bag
         user_data[cid]['type'] = 'שקית רפואי'
         ask_quantity(cid)
 
-    elif data in prices:
+     elif data in prices:
         user_data[cid]['product'] = data
         user_data[cid]['price'] = prices[data]
         ask_quantity(cid)
 
-    elif data.startswith('quantity_'):
+     elif data.startswith('quantity_'):
         quantity = int(data.replace('quantity_', ''))
         user_data[cid]['quantity'] = quantity
         ask_delivery(call.message)
 
-    elif data in ['delivery', 'pickup']:
+     elif data in ['delivery', 'pickup']:
         user_data[cid]['method'] = 'משלוח' if data == 'delivery' else 'איסוף'
         if data == 'delivery':
             bot.send_message(cid, "הכנס שם מלא:")
