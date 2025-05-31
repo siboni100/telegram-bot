@@ -3,7 +3,7 @@ from telebot import types
 from flask import Flask, request
 import os
 
-TOKEN = '7809342094:AAHLYD5GM1lZFBAR20oJXjdZZCtAEoTdFnc'
+TOKEN = '7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo'
 ADMIN_CHAT_ID = 7759457391  # שים את ה-ID שלך פה
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
@@ -143,6 +143,6 @@ def index():
 
 if __name__ == '__main__' :
     bot.remove_webhook()
-    bot.set_webhook(url=f"https://telegram-bot-zzi5.onrender.com/7809342094:AAHLYD5GM1lZFBAR20oJXjdZZCtAEoTdFnc")
+    bot.set_webhook(url=f"https://telegram-bot-zzi5.onrender.com/7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo)
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
