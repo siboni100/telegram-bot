@@ -95,7 +95,7 @@ def callback_query(call):
             markup.add(types.InlineKeyboardButton(item, callback_data=f'bag_{item}'))
         bot.send_message(cid, f"בחר שקית ({category}):", reply_markup=markup)
 
-elif data.startswith('bag_'):
+    elif data.startswith('bag_'):
         bag = data.replace('bag_', '')
         user_data[cid]['product'] = bag
         user_data[cid]['type'] = 'שקית רפואי'
