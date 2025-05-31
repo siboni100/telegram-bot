@@ -121,7 +121,7 @@ def get_contact(message):
     send_summary(cid)
 
 ר# במקום שבו אתה מקבל את המחיר (callback_data כמו boutique_1, vape_1 וכו')
-    elif call.data in prices:
+elif call.data in prices:
     selected_price = prices[call.data]
     user_data[chat_id]['price'] = selected_price
     
