@@ -3,10 +3,10 @@ from telebot import types
 from flask import Flask, request
 import os
 
-TOKEN =  "7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo"
+TOKEN =  '7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo'
 ADMIN_CHAT_ID = 7759457391
 bot = telebot.TeleBot(TOKEN)
-app = Flask(__name__)
+app = Flask(name)
 
 user_data = {}
 steps = {}
@@ -95,7 +95,7 @@ def callback_query(call):
             markup.add(types.InlineKeyboardButton(item, callback_data=f'bag_{item}'))
         bot.send_message(cid, f"בחר שקית ({category}):", reply_markup=markup)
 
-   elif data.startswith('bag_')
+elif data.startswith('bag_'):
         bag = data.replace('bag_', '')
         user_data[cid]['product'] = bag
         user_data[cid]['type'] = 'שקית רפואי'
@@ -189,7 +189,7 @@ def webhook():
 def index():
     return "Bot is running", 200
 
-if __name__ == '__main__' :
+if name == 'main':
     bot.remove_webhook()
     bot.set_webhook(url=f"https://telegram-bot-zzi5.onrender.com/7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo")
     port = int(os.environ.get('PORT', 5000))
