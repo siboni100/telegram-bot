@@ -38,7 +38,7 @@ def start(message):
 def main_menu(cid):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("חשיש", callback_data='menu_hashish'))
-    markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_and_beautiful.MP4'))
+    markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_vape'))
     markup.add(types.InlineKeyboardButton("בוטיק", callback_data='menu_boutique'))
     markup.add(types.InlineKeyboardButton("חממה", callback_data='menu_greenhouse'))
     markup.add(types.InlineKeyboardButton("שקיות רפואי", callback_data='menu_medica'))
@@ -59,7 +59,7 @@ def callback_query(call):
             markup.add(types.InlineKeyboardButton("2 = 2000₪", callback_data='moroccan_2'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
-        elif category == 'and_beautiful.MP4':
+        elif category == 'vape':
             video = open('images/and_beautiful.MP4', 'rb')
             bot.send_video(cid, video)
             markup = types.InlineKeyboardMarkup()
@@ -192,6 +192,7 @@ def send_summary(cid):
 
     bot.send_message(cid, summary, parse_mode="Markdown")
     bot.send_message(ADMIN_CHAT_ID, f"\U0001F4E5 הזמנה חדשה:\n{summary}", parse_mode="Markdown")
+    bot.send_message(cid, "תודה שבחרת ב־Miday Pharma 🌿")
 
 # Webhook
 @app.route(f"/{TOKEN}", methods=['POST'])
