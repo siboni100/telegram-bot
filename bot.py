@@ -96,7 +96,7 @@ def callback_query(call):
     elif data.startswith('bag_type_'):
         category = data.replace('bag_type_', '')
         markup = types.InlineKeyboardMarkup()
-        for item in bags[category]:
+    for item in bags[category]:
         markup.add(types.InlineKeyboardButton(item, callback_data=f'bag_{item}'))
         bot.send_message(cid, f"בחר שקית ({category}):", reply_markup=markup)
 
