@@ -33,7 +33,7 @@ def start(message):
     cid = message.chat.id
     user_data[cid] = {}
 
-    # הכפתורים שיופיעו עם התמונה
+    # כפתורי הקטגוריות שיופיעו עם התמונה
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("חשיש", callback_data='menu_hashish'))
     markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_and_beautiful.MP4'))
@@ -228,8 +228,6 @@ def send_post(message):
 
 # --- Webhook ---
 
-from flask import Flask, request
-
 @app.route(f"/{TOKEN}", methods=['POST'])
 def webhook():
     json_string = request.get_data().decode('utf-8')
@@ -245,4 +243,4 @@ if __name__ == '__main__':
     bot.remove_webhook()
     bot.set_webhook(url=f"https://telegram-bot-zzi5.onrender.com/7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo")
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port) 
+    app.run(host='0.0.0.0', port=port)
