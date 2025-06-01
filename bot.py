@@ -40,7 +40,7 @@ def handle_vapes(message):
 
 @bot.message_handler(func=lambda message: message.text == "שקיות")
 def handle_bags(message):
-    bot.send_message(message.chat.id, ✳️ זמנית רק וייפים זמינים.")
+    bot.send_message(message.chat.id, "✳️ זמנית רק וייפים זמינים.")
 
 # בחירת טעם → בחירת כמות
 @bot.callback_query_handler(func=lambda call: call.data.startswith("vape_"))
