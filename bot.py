@@ -35,7 +35,7 @@ def start(message):
     markup = types.ReplyKeyboardRemove()
 
     # שלח תמונה עם ברכה
-    with open('start_image.jpg', 'rb') as photo:
+    with open('start image.jpg', 'rb') as photo:
         bot.send_photo(cid, photo, caption="ברוך הבא למיידי פארם! 👋\nבחר קטגוריה מהתפריט שלמטה:")
 
     main_menu(cid)
