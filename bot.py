@@ -5,6 +5,8 @@ import os
 
 TOKEN = '7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo'
 ADMIN_CHAT_ID = 7759457391
+GROUP_CHAT_ID = -1002639815887
+
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
@@ -179,31 +181,59 @@ def send_summary(cid):
     bot.send_message(ADMIN_CHAT_ID, f"📩 הזמנה חדשה:\n{summary}")
     bot.send_message(cid, "תודה שבחרת במיידי פארם 🫶")
 
-# -- התוספות שמבקשים --
+# פוסט עם כפתורים - שליחה ידנית
+@bot.message_handler(commands=['post'])
+def send_post(message):
+    if message.chat.type == "private":
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(
+            types.InlineKeyboardButton("Mike Tyson 💥", url="https://t.me/Mike_Tyson5"),
+            types.InlineKeyboardButton("Doktor Gril 💥", url="https://t.me/doktorgril1"),
+            types.InlineKeyboardButton("הבוט שלנו 💥", url="https://t.me/Pharma122_bot")
+        )
+        with open("images/photo_2025-06-01_03-29-19.jpg", "rb") as photo:
+            bot.send_photo(
+                chat_id=GROUP_CHAT_ID,
+                photo=photo,
+                caption="""
+🏋️‍♂️🔥 *הקבוצה הכי חזקה בדרום!*
 
-# 1. פקודה לשליחת ה-chat ID של הקבוצה
-@bot.message_handler(commands=['getid'])
-def send_chat_id(message):
-    if message.chat.type in ['group', 'supergroup']:
-        bot.send_message(message.chat.id, f"Chat ID של הקבוצה הוא:\n`{message.chat.id}`", parse_mode='Markdown')
-    else:
-        bot.send_message(message.chat.id, "אנא שלח את הפקודה הזו בתוך קבוצה.")
+לקוחות חוזרים *באש ובאהבה* ❤️‍🔥  
+לא עוברים *לאף אחד* ❌  
+נשארים *רק אצלנו* 🫡💪  
+לקוחות גבוהים – ומפסוטים 😎🧠
 
-# 2. שליחת ה-chat ID למנהל כשמישהו שולח הודעה רגילה בקבוצה
-@bot.message_handler(func=lambda m: m.chat.type in ['group', 'supergroup'])
-def report_chat_id_to_admin(message):
-    chat_id = message.chat.id
-    user = message.from_user
-    text = message.text
-    # שולח למנהל את מזהה הקבוצה והטקסט שנשלח
-    bot.send_message(ADMIN_CHAT_ID, f"🆔 הודעה חדשה בקבוצה\nChat ID: {chat_id}\nמשתמש: {user.username or user.first_name}\nטקסט: {text}")
+⸻
 
-# --- סיום תוספות ---
+🎯 כל סגירה – בול בפוני  
+✅ כל בעיה – נפתרת  
+😁 הם הולכים מחויכים  
+💥 ואותנו? לא שוכחים לעולם
 
-# Webhook
+⸻
+
+🎁 פינוקים? ברור שכן  
+🔄 כמו שהם חוזרים קבוע  
+💵 אנחנו מפנקים קבוע  
+❤️ מהלב – עם כל הסחורה הכי טובה
+
+⸻
+
+🏆 הקבוצה הכי חזקה בדרום  
+⏬ *לחץ על כפתור לשירות ישיר:*
+""",
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+
+# --- Webhook ---
+
+from flask import Flask, request
+
 @app.route(f"/{TOKEN}", methods=['POST'])
 def webhook():
-    update = telebot.types.Update.de_json(request.stream.read().decode("utf-8"))
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
     bot.process_new_updates([update])
     return "ok", 200
 
