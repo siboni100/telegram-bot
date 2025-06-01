@@ -4,8 +4,10 @@ import os
 from flask import Flask, request
 
 TOKEN = '7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo'
+ADMIN_CHAT_ID = 7759457391
 GROUP_CHAT_ID = 1002639815887
- bot = telebot.TeleBot(TOKEN)
+
+bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 # טעמים של וייפים
