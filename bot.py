@@ -32,19 +32,18 @@ bags = {
 def start(message):
     cid = message.chat.id
     user_data[cid] = {}
-    markup = types.ReplyKeyboardRemove()
-    
-    with open('images/photo_2025-06-02_00-51-05.jpg', 'rb') as photo:
-        bot.send_photo(cid, photo, caption="ברוך הבא למיידי פארם, בחר קטגוריה:", reply_markup=markup)
 
-def main_menu(cid):
+    # הכפתורים שיופיעו עם התמונה
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("חשיש", callback_data='menu_hashish'))
     markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_and_beautiful.MP4'))
     markup.add(types.InlineKeyboardButton("בוטיק", callback_data='menu_boutique'))
     markup.add(types.InlineKeyboardButton("חממה", callback_data='menu_greenhouse'))
     markup.add(types.InlineKeyboardButton("שקיות רפואי", callback_data='menu_medica'))
-    bot.send_message(cid, "בחר קטגוריה:", reply_markup=markup)
+
+    # שולח את התמונה יחד עם הכפתורים
+    with open('images/photo_2025-06-02_00-51-05.jpg', 'rb') as photo:
+        bot.send_photo(cid, photo, caption="ברוך הבא למיידי פארם, בחר קטגוריה:", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
