@@ -160,7 +160,7 @@ def collect_details(message):
 
 def send_summary(cid):
     data = user_data.get(cid, {})
-    chat = bot.get_chat(cid)  # בקשת הצ'אט פעם אחת בלבד
+    chat = bot.get_chat(cid)
     username = f"@{chat.username}" if chat.username else f"ID: {cid}"
     price = int(data.get('price', 0)) * int(data.get('quantity', 1))
 
@@ -178,6 +178,27 @@ def send_summary(cid):
     bot.send_message(cid, summary)
     bot.send_message(ADMIN_CHAT_ID, f"📩 הזמנה חדשה:\n{summary}")
     bot.send_message(cid, "תודה שבחרת במיידי פארם 🫶")
+
+# -- התוספות שמבקשים --
+
+# 1. פקודה לשליחת ה-chat ID של הקבוצה
+@bot.message_handler(commands=['getid'])
+def send_chat_id(message):
+    if message.chat.type in ['group', 'supergroup']:
+        bot.send_message(message.chat.id, f"Chat ID של הקבוצה הוא:\n`{message.chat.id}`", parse_mode='Markdown')
+    else:
+        bot.send_message(message.chat.id, "אנא שלח את הפקודה הזו בתוך קבוצה.")
+
+# 2. שליחת ה-chat ID למנהל כשמישהו שולח הודעה רגילה בקבוצה
+@bot.message_handler(func=lambda m: m.chat.type in ['group', 'supergroup'])
+def report_chat_id_to_admin(message):
+    chat_id = message.chat.id
+    user = message.from_user
+    text = message.text
+    # שולח למנהל את מזהה הקבוצה והטקסט שנשלח
+    bot.send_message(ADMIN_CHAT_ID, f"🆔 הודעה חדשה בקבוצה\nChat ID: {chat_id}\nמשתמש: {user.username or user.first_name}\nטקסט: {text}")
+
+# --- סיום תוספות ---
 
 # Webhook
 @app.route(f"/{TOKEN}", methods=['POST'])
