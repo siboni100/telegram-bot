@@ -54,7 +54,7 @@ def callback_query(call):
             video = open('images/moroccan.MP4', 'rb')
             bot.send_video(cid, video)
             markup = types.InlineKeyboardMarkup()
-            markup.add(types.InlineKeyboardButton("1 = 1200₪", callback_data='חשיש_1'))
+            markup.add(types.InlineKeyboardButton("1 = 1200₪", callback_data='moroccan_1'))
             markup.add(types.InlineKeyboardButton("2 = 2000₪", callback_data='moroccan_2'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
