@@ -33,10 +33,12 @@ def start(message):
     cid = message.chat.id
     user_data[cid] = {}
     markup = types.ReplyKeyboardRemove()
-    bot.send_message(cid, "ברוך הבא למיידי פארם, בחר קטגוריה:", reply_markup=markup)
-    main_menu(cid)
 
-def main_menu(cid):
+    # שלח תמונה עם ברכה
+    with open('start_image.jpg', 'rb') as photo:
+        bot.send_photo(cid, photo, caption="ברוך הבא למיידי פארם! 👋\nבחר קטגוריה מהתפריט שלמטה:")
+
+    main_menu(cid)
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("חשיש", callback_data='menu_hashish'))
     markup.add(types.InlineKeyboardButton("וייפים", callback_data='menu_and_beautiful.MP4'))
