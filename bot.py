@@ -65,8 +65,8 @@ def callback_query(call):
             bot.send_video(cid, video)
             markup = types.InlineKeyboardMarkup()
             vape_flavors = ['Frozen grapes', 'Apple jam', 'Papaya', 'Blu velvet', 'Blu frootz', 'LA Zkittlez']
-            for flavor in vape_flavors:
-                  markup.add(types.InlineKeyboardButton(flavor, callback_data=f'vape_flavor_{flavor}'))
+        for flavor in vape_flavors:
+            markup.add(types.InlineKeyboardButton(flavor, callback_data=f'vape_flavor_{flavor}'))
             bot.send_message(cid, "בחר טעם:", reply_markup=markup)
         elif data.startswith('vape_flavor_'):
             flavor = data.replace('vape_flavor_', '')
