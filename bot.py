@@ -95,29 +95,27 @@ def callback_query(call):
                 markup.add(types.InlineKeyboardButton(cat, callback_data=f'bag_type_{cat}'))
             bot.send_message(cid, "בחר סוג:", reply_markup=markup)
 
-    elif data.startswith('vape_flavor_'):
-    flavor_id = data.replace('vape_flavor_', '')
+        elif data.startswith('vape_flavor_'):
+        flavor_id = data.replace('vape_flavor_', '')
 
-    # מיפוי מזהים לשמות טעמים אמיתיים
-    flavor_names = {
-        '1': 'Frozen grapes',
-        '2': 'Apple jam',
-        '3': 'Papaya',
-        '4': 'Blu velvet',
-        '5': 'Blu frootz',
-        '6': 'LA Zkittlez'
+        # מיפוי מזהים לשמות טעמים אמיתיים
+        flavor_names = {
+            '1': 'Frozen grapes',
+            '2': 'Apple jam',
+            '3': 'Papaya',
+            '4': 'Blu velvet',
+            '5': 'Blu frootz',
+            '6': 'LA Zkittlez'
     }
 
-    # קבלת שם הטעם מהמילון
-    flavor_name = flavor_names.get(flavor_id, '---')
-    user_data[cid]['product'] = flavor_name
-    user_data[cid]['type'] = 'וייפ'
+        flavor_name = flavor_names.get(flavor_id, '---')
+        user_data[cid]['product'] = flavor_name
+        user_data[cid]['type'] = 'וייפ'
 
-    # בחירת כמות
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
-    markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
-    bot.send_message(cid, "בחר כמות:", reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
+        markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
+        bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
 
     elif data.startswith('bag_type_'):
