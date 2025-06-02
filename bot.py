@@ -53,35 +53,25 @@ def callback_query(call):
     if data.startswith('menu_'):
         category = data.replace('menu_', '')
         if category == 'hashish':
-            video = open('images/moroccan.MP4', 'rb')
-            bot.send_video(cid, video)
+            with open('images/moroccan.MP4', 'rb') as video:
+                bot.send_video(cid, video)
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("1 = 1200₪", callback_data='moroccan_1'))
             markup.add(types.InlineKeyboardButton("2 = 2000₪", callback_data='moroccan_2'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
         elif category == 'and_beautiful.MP4':
-            video = open('images/and_beautiful.MP4', 'rb')
-            bot.send_video(cid, video)
+            with open('images/and_beautiful.MP4', 'rb') as video:
+                bot.send_video(cid, video)
             markup = types.InlineKeyboardMarkup()
             vape_flavors = ['Frozen grapes', 'Apple jam', 'Papaya', 'Blu velvet', 'Blu frootz', 'LA Zkittlez']
-        for flavor in vape_flavors:
-            markup.add(types.InlineKeyboardButton(flavor, callback_data=f'vape_flavor_{flavor}'))
+            for flavor in vape_flavors:
+                markup.add(types.InlineKeyboardButton(flavor, callback_data=f'vape_flavor_{flavor}'))
             bot.send_message(cid, "בחר טעם:", reply_markup=markup)
-        elif data.startswith('vape_flavor_'):
-            flavor = data.replace('vape_flavor_', '')
-            user_data[cid]['product'] = flavor
-            user_data[cid]['type'] = 'וייפ'
-            markup = types.InlineKeyboardMarkup()
-            markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
-            markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
-            bot.send_message(cid, "בחר כמות:", reply_markup=markup)
-
-
 
         elif category == 'greenhouse':
-            photo = open('images/greenhouse.jpg', 'rb')
-            bot.send_photo(cid, photo)
+            with open('images/greenhouse.jpg', 'rb') as photo:
+                bot.send_photo(cid, photo)
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("5 גרם - 150₪", callback_data='greenhouse_5'))
             markup.add(types.InlineKeyboardButton("10 גרם - 250₪", callback_data='greenhouse_10'))
@@ -89,8 +79,8 @@ def callback_query(call):
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
         elif category == 'boutique':
-            photo = open('images/boutique.jpg', 'rb')
-            bot.send_photo(cid, photo)
+            with open('images/boutique.jpg', 'rb') as photo:
+                bot.send_photo(cid, photo)
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("5 = 200₪", callback_data='boutique_5'))
             markup.add(types.InlineKeyboardButton("10 = 350₪", callback_data='boutique_10'))
@@ -98,12 +88,21 @@ def callback_query(call):
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
         elif category == 'medica':
-            photo = open('images/medica.jpg', 'rb')
-            bot.send_photo(cid, photo)
+            with open('images/medica.jpg', 'rb') as photo:
+                bot.send_photo(cid, photo)
             markup = types.InlineKeyboardMarkup()
             for cat in bags:
                 markup.add(types.InlineKeyboardButton(cat, callback_data=f'bag_type_{cat}'))
             bot.send_message(cid, "בחר סוג:", reply_markup=markup)
+
+    elif data.startswith('vape_flavor_'):
+        flavor = data.replace('vape_flavor_', '')
+        user_data[cid]['product'] = flavor
+        user_data[cid]['type'] = 'וייפ'
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
+        markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
+        bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
     elif data.startswith('bag_type_'):
         category = data.replace('bag_type_', '')
@@ -206,8 +205,7 @@ def send_post(message):
             bot.send_photo(
                 chat_id=GROUP_CHAT_ID,
                 photo=photo,
-                caption="""
-🏋️‍♂️🔥 *הקבוצה הכי חזקה בדרום!*
+                caption="""🏋️‍♂️🔥 *הקבוצה הכי חזקה בדרום!*
 
 לקוחות חוזרים *באש ובאהבה* ❤️‍🔥  
 לא עוברים *לאף אחד* ❌  
@@ -217,41 +215,30 @@ def send_post(message):
 ⸻
 
 🎯 כל סגירה – בול בפוני  
-✅ כל בעיה – נפתרת  
-😁 הם הולכים מחויכים  
-💥 ואותנו? לא שוכחים לעולם
+✅ כל בעיה – פתורה לך  
+💎 המשלוחים שלנו – הכי טובים בעיר  
+🎉 כל יום מבצעים חדשים
 
-⸻
-
-🎁 פינוקים? ברור שכן  
-🔄 כמו שהם חוזרים קבוע  
-💵 אנחנו מפנקים קבוע  
-❤️ מהלב – עם כל הסחורה הכי טובה
-
-⸻
-
-🏆 הקבוצה הכי חזקה בדרום  
-⏬ *לחץ על כפתור לשירות ישיר:*
-""",
+🌐 *אחד למעטפת – הכל במקום אחד*""", 
                 parse_mode="Markdown",
                 reply_markup=markup
             )
 
-# --- Webhook ---
-
-@app.route(f"/{TOKEN}", methods=['POST'])
+# ריצה עם Flask + webhook
+@app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
+    json_str = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_str)
     bot.process_new_updates([update])
     return "ok", 200
 
-@app.route("/", methods=['GET'])
+@app.route("/")
 def index():
-    return "Bot is running", 200
+    return "Hello from Miday Pharma bot!"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    # הגדרת webhook לכתובת הריצה שלך (החלף את ה-URL)
+    WEBHOOK_URL =("https://telegram-bot-zzi5.onrender.com/7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo")
     bot.remove_webhook()
-    bot.set_webhook(url=f"https://telegram-bot-zzi5.onrender.com/7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo")
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    bot.set_webhook(url=WEBHOOK_URL)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
