@@ -64,9 +64,20 @@ def callback_query(call):
             video = open('images/and_beautiful.MP4', 'rb')
             bot.send_video(cid, video)
             markup = types.InlineKeyboardMarkup()
+            vape_flavors = ['Frozen grapes', 'Apple jam', 'Papaya', 'Blu velvet', 'Blu frootz', 'LA Zkittlez']
+            for flavor in vape_flavors:
+                  markup.add(types.InlineKeyboardButton(flavor, callback_data=f'vape_flavor_{flavor}'))
+            bot.send_message(cid, "בחר טעם:", reply_markup=markup)
+        elif data.startswith('vape_flavor_'):
+            flavor = data.replace('vape_flavor_', '')
+            user_data[cid]['product'] = flavor
+            user_data[cid]['type'] = 'וייפ'
+            markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
             markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
             bot.send_message(cid, "בחר כמות:", reply_markup=markup)
+
+
 
         elif category == 'greenhouse':
             photo = open('images/greenhouse.jpg', 'rb')
