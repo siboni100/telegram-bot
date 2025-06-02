@@ -95,28 +95,15 @@ def callback_query(call):
                 markup.add(types.InlineKeyboardButton(cat, callback_data=f'bag_type_{cat}'))
             bot.send_message(cid, "בחר סוג:", reply_markup=markup)
 
-        elif data.startswith('vape_flavor_'):
-        flavor_id = data.replace('vape_flavor_', '')
+    elif data.startswith('vape_flavor_'):
+        flavor_name = data.replace('vape_flavor_', '')
+        user_data[cid]['product'] = flavor_name
+        user_data[cid]['type'] = 'וייפ'
 
-        # מיפוי מזהים לשמות טעמים אמיתיים
-        flavor_names = {
-            '1': 'Frozen grapes',
-            '2': 'Apple jam',
-            '3': 'Papaya',
-            '4': 'Blu velvet',
-            '5': 'Blu frootz',
-            '6': 'LA Zkittlez'
-    }
-
-            flavor_name = flavor_names.get(flavor_id, '---')
-            user_data[cid]['product'] = flavor_name
-            user_data[cid]['type'] = 'וייפ'
-
-            markup = types.InlineKeyboardMarkup()
-            markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
-            markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
-            bot.send_message(cid, "בחר כמות:", reply_markup=markup)
-
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("1 = 300₪", callback_data='vape_1'))
+        markup.add(types.InlineKeyboardButton("2 = 550₪", callback_data='vape_2'))
+        bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
     elif data.startswith('bag_type_'):
         category = data.replace('bag_type_', '')
@@ -213,47 +200,23 @@ def send_post(message):
         markup = types.InlineKeyboardMarkup(row_width=1)
         markup.add(
             types.InlineKeyboardButton("Mike Tyson 💥", url="https://t.me/Mike_Tyson5"),
-            types.InlineKeyboardButton("Doktor Gril 💥", url="https://t.me/doktorgril1"),
-            types.InlineKeyboardButton("הבוט שלנו 💥", url="https://t.me/Pharma122_bot")
+            types.InlineKeyboardButton("Doktor Gril 💥", url="https://t.me/Doktor_Gril")
         )
-        with open("images/photo_2025-06-01_03-29-19.jpg", "rb") as photo:
-            bot.send_photo(
-                chat_id=GROUP_CHAT_ID,
-                photo=photo,
-                caption="""🏋️‍♂️🔥 *הקבוצה הכי חזקה בדרום!*
+        bot.send_photo(GROUP_CHAT_ID, open('images/moroccan.MP4', 'rb'), caption="🔥 חדש במיידי פארם 🔥", reply_markup=markup)
 
-לקוחות חוזרים *באש ובאהבה* ❤️‍🔥  
-לא עוברים *לאף אחד* ❌  
-נשארים *רק אצלנו* 🫡💪  
-לקוחות גבוהים – ומפסוטים 😎🧠
-
-⸻
-
-🎯 כל סגירה – בול בפוני  
-✅ כל בעיה – פתורה לך  
-💎 המשלוחים שלנו – הכי טובים בעיר  
-🎉 כל יום מבצעים חדשים
-
-🌐 *אחד למעטפת – הכל במקום אחד*""", 
-                parse_mode="Markdown",
-                reply_markup=markup
-            )
-
-# ריצה עם Flask + webhook
-@app.route(f"/{TOKEN}", methods=["POST"])
+# Flask routes
+@app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
-    json_str = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_str)
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
     bot.process_new_updates([update])
-    return "ok", 200
+    return '!', 200
 
-@app.route("/")
+@app.route('/')
 def index():
-    return "Hello from Miday Pharma bot!"
+    return 'Bot is running', 200
 
-if __name__ == "__main__":
-    # הגדרת webhook לכתובת הריצה שלך (החלף את ה-URL)
-    WEBHOOK_URL =("https://telegram-bot-zzi5.onrender.com/7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo")
+if __name__ == '__main__':
     bot.remove_webhook()
-    bot.set_webhook(url=WEBHOOK_URL)
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    bot.set_webhook(url=f"https://telegram-bot-zzi5.onrender.com/7809342094:AAGpLE7T5E-Spvd7Gzv7cpSDKTpf_HDpHAo")
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
