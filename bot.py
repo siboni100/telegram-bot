@@ -15,10 +15,10 @@ steps = {}
 
 # מחירים
 prices = {
-    'greenhouse_5': 150, 'greenhouse_10': 250, 'greenhouse_20': 400,
-    'vape_1': 300, 'vape_2': 550,
+    'greenhouse_5': 30, 'greenhouse_10': 25, 'greenhouse_20': 20,
+    'vape_1': 300, 'vape_2': 275,
     'medica_1': 400, 'medica_2': 350, 'medica_3': 333.333333,
-    'boutique_5': 200, 'boutique_10': 350, 'boutique_20': 650,
+    'boutique_5': 40, 'boutique_10': 35, 'boutique_20': 32.5,
     'moroccan_1': 1200, 'moroccan_2': 1000,
 }
 
