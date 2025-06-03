@@ -118,8 +118,8 @@ def callback_query(call):
         user_data[cid]['type'] = 'שקית רפואי'
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("1 = 400₪", callback_data='medica_1'))
-        markup.add(types.InlineKeyboardButton("2 = 700₪", callback_data='medica_2'))
-        markup.add(types.InlineKeyboardButton("3 = 1000₪", callback_data='medica_3'))
+        markup.add(types.InlineKeyboardButton("2 = 350₪", callback_data='medica_2'))
+        markup.add(types.InlineKeyboardButton("3 = 333.333333₪", callback_data='medica_3'))
         bot.send_message(cid, "בחר כמות:", reply_markup=markup)
 
     elif data in prices:
