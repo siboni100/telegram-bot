@@ -193,16 +193,51 @@ def send_summary(cid):
     bot.send_message(ADMIN_CHAT_ID, f"📩 הזמנה חדשה:\n{summary}")
     bot.send_message(cid, "תודה שבחרת במיידי פארם 🫶")
 
-# פוסט עם כפתורים - שליחה ידנית
+## פוסט עם כפתורים - שליחה ידנית
 @bot.message_handler(commands=['post'])
 def send_post(message):
     if message.chat.type == "private":
         markup = types.InlineKeyboardMarkup(row_width=1)
         markup.add(
-            types.InlineKeyboardButton("Mike Tyson 💥", url="https://t.me/Mike_Tyson5"),
-            types.InlineKeyboardButton("Doktor Gril 💥", url="https://t.me/Doktor_Gril")
+
+            types.InlineKeyboardButton("Doktor Gril 💥", url="https://t.me/doktorgril1"),
+            types.InlineKeyboardButton("הבוט שלנו 💥", url="https://t.me/Pharma122_bot")
         )
-        bot.send_photo(GROUP_CHAT_ID, open('images/moroccan.MP4', 'rb'), caption="🔥 חדש במיידי פארם 🔥", reply_markup=markup)
+        with open("images/photo_2025-06-01_03-29-19.jpg", "rb") as photo:
+            bot.send_photo(
+                chat_id=GROUP_CHAT_ID,
+                photo=photo,
+                caption="""
+🏋️‍♂️🔥 *הקבוצה הכי חזקה בדרום!*
+
+לקוחות חוזרים *באש ובאהבה* ❤️‍🔥  
+לא עוברים *לאף אחד* ❌  
+נשארים *רק אצלנו* 🫡💪  
+לקוחות גבוהים – ומפסוטים 😎🧠
+
+⸻
+
+🎯 כל סגירה – בול בפוני  
+✅ כל בעיה – נפתרת  
+😁 הם הולכים מחויכים  
+💥 ואותנו? לא שוכחים לעולם
+
+⸻
+
+🎁 פינוקים? ברור שכן  
+🔄 כמו שהם חוזרים קבוע  
+💵 אנחנו מפנקים קבוע  
+❤️ מהלב – עם כל הסחורה הכי טובה
+
+⸻
+
+🏆 הקבוצה הכי חזקה בדרום  
+⏬ *לחץ על כפתור לשירות ישיר:*
+""",
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+
 
 # Flask routes
 @app.route(f'/{TOKEN}', methods=['POST'])
